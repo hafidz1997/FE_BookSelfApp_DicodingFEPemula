@@ -1,3 +1,9 @@
+// load book function
+window.addEventListener("load", function () {
+  (books = JSON.parse(localStorage.getItem("books")) || []), addBook(books);
+  document.addEventListener("setBookEvent", setBook);
+});
+
 // change text on check button
 const submitTxt = document.getElementById("bookSubmit").childNodes[1];
 const completeBox = document.getElementById("inputBookIsComplete");
@@ -15,7 +21,8 @@ let books = [];
 const incompleteBook = document.getElementById("incompleteBookshelfList");
 const completeBook = document.getElementById("completeBookshelfList");
 const submit = document.getElementById("inputBook");
-submit.addEventListener("submit", function () {
+submit.addEventListener("submit", function (e) {
+  e.preventDefault();
   const title = document.getElementById("inputBookTitle").value;
   const author = document.getElementById("inputBookAuthor").value;
   const year = document.getElementById("inputBookYear").value;
@@ -33,6 +40,7 @@ submit.addEventListener("submit", function () {
 
 // add book function
 function addBook(books) {
+  (completeBook.innerHTML = ""), (incompleteBook.innerHTML = "");
   books.forEach((book) => {
     const textTitle = document.createElement("h3");
     textTitle.innerText = book.title;
@@ -47,15 +55,15 @@ function addBook(books) {
 
     const btnChange = createButton(
       "green",
+      book.id,
       book.isComplete ? "Belum selesai dibaca" : "Selesai dibaca",
       function (e) {
-        console.log(book.isComplete);
-        changeStatus(e.target.parentElement.parentElement, book.isComplete);
+        changeStatus(e);
       }
     );
 
-    const btnDel = createButton("red", "Hapus buku", function (e) {
-      remove(e.target.parentElement.parentElement);
+    const btnDel = createButton("red", book.id, "Hapus buku", function (e) {
+      remove(e);
     });
 
     const btnContainer = document.createElement("div");
@@ -74,11 +82,7 @@ function addBook(books) {
   });
 }
 
-// load book function
-window.addEventListener("load", function () {
-  (books = JSON.parse(localStorage.getItem("books")) || []), addBook(books);
-  document.addEventListener("setBookEvent", setBook);
-});
+// save and show book function
 function setBook() {
   !(function (books) {
     localStorage.setItem("books", JSON.stringify(books));
@@ -87,9 +91,10 @@ function setBook() {
 }
 
 // button function
-function createButton(btnClass, btnTxt, eventListener) {
+function createButton(btnClass, btnId, btnTxt, eventListener) {
   const button = document.createElement("button");
   button.classList.add(btnClass);
+  button.id = btnId;
   button.innerText = btnTxt;
   button.addEventListener("click", function (e) {
     eventListener(e);
@@ -97,28 +102,18 @@ function createButton(btnClass, btnTxt, eventListener) {
   return button;
 }
 
-//  function
-function changeStatus(e, status) {
-  const bookTitle = e.querySelector("h3").innerText;
-  const bookAuthor = e.querySelector(".author").innerText;
-  const bookYear = e.querySelector(".year").innerText;
-  let bookObject = {
-    id: +new Date(),
-    title: bookTitle,
-    author: bookAuthor,
-    year: bookYear,
-    isComplete: status,
-  };
-  const book = addBook(bookObject);
-  if (status) {
-    incompleteBook.append(book);
-  } else {
-    completeBook.append(book);
-  }
-  e.remove();
+// change status function
+function changeStatus(e) {
+  const btnId = Number(e.target.id);
+  const bookTarget = books.find((x) => x.id === btnId);
+  bookTarget.isComplete = !bookTarget.isComplete;
+  document.dispatchEvent(new Event("setBookEvent"));
 }
 
 // delete book function
 function remove(e) {
-  e.remove();
+  const btnId = Number(e.target.id);
+  const bookTarget = books.find((x) => x.id === btnId);
+  books.splice(bookTarget, 1);
+  document.dispatchEvent(new Event("setBookEvent"));
 }
