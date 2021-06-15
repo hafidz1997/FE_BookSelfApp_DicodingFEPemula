@@ -38,6 +38,21 @@ submit.addEventListener("submit", function (e) {
   document.dispatchEvent(new Event("setBookEvent"));
 });
 
+// search book
+const search = document.getElementById("searchBook");
+search.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const searchVal = document.getElementById("searchBookTitle").value;
+  console.log(searchVal);
+  searchVal
+    ? addBook(
+        books.filter(function (e) {
+          return e.title.toLowerCase().includes(searchVal.toLowerCase());
+        })
+      )
+    : addBook(books);
+});
+
 // add book function
 function addBook(books) {
   (completeBook.innerHTML = ""), (incompleteBook.innerHTML = "");
