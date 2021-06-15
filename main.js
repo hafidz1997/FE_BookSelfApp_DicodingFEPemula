@@ -119,16 +119,25 @@ function createButton(btnClass, btnId, btnTxt, eventListener) {
 
 // change status function
 function changeStatus(e) {
-  const btnId = Number(e.target.id);
-  const bookTarget = books.find((x) => x.id === btnId);
-  bookTarget.isComplete = !bookTarget.isComplete;
-  document.dispatchEvent(new Event("setBookEvent"));
+  const pop = confirm("Apakah anda yakin akan mengubah status buku?");
+  if (pop) {
+    const btnId = Number(e.target.id);
+    const bookTarget = books.find((x) => x.id === btnId);
+    bookTarget.isComplete = !bookTarget.isComplete;
+    document.dispatchEvent(new Event("setBookEvent"));
+  } else {
+    return 0;
+  }
 }
 
 // delete book function
 function remove(e) {
-  const btnId = Number(e.target.id);
-  const bookTarget = books.find((x) => x.id === btnId);
-  books.splice(bookTarget, 1);
-  document.dispatchEvent(new Event("setBookEvent"));
+  const pop = confirm("Apakah anda yakin akan menghapus buku ?");
+  if (pop) {
+    const btnId = Number(e.target.id);
+    books = books.filter((x) => x.id != btnId);
+    document.dispatchEvent(new Event("setBookEvent"));
+  } else {
+    return 0;
+  }
 }
